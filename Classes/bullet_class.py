@@ -1,4 +1,4 @@
-import pygame
+from pygame.rect import Rect
 
 
 class Bullet:
@@ -18,5 +18,5 @@ class Bullet:
         self.y += self.vel_y
 
     def is_colliding(self, collide_rect):
-        self_rect = pygame.rect.Rect(self.x, self.y, self.size_x, self.size_y)
+        self_rect = Rect(self.x, self.y, self.size_x, self.size_y)
         return self_rect.colliderect(collide_rect)
