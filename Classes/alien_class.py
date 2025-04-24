@@ -1,0 +1,35 @@
+from Classes.bullet_class import Bullet
+
+
+class Alien:
+    def __init__(self, x, y, sprite, movement_delay, movement_trigger, bullet_sprite):
+        self.x = x
+        self.y = y
+        self.sprite = sprite
+        self.size_x = sprite.get_width()
+        self.size_y = sprite.get_height()
+        self.direction = 1
+        self.movement_timer = movement_delay
+        self.movement_trigger = movement_trigger
+        self.alive = True
+        self.bullet = Bullet(x, -200, 0, bullet_sprite)
+
+    def blit(self, win):
+        self.movement_timer += 1
+        if self.movement_timer >= self.movement_trigger:
+            self.move()
+            self.movement_timer = 0
+
+        win.blit(self.sprite, (self.x, self.y))
+
+    def move(self):
+        self.x += self.direction * 12
+
+    def move_down(self):
+        self.direction *= -1
+        self.y += 12
+
+    def shoot(self):
+        self.bullet.x = self.x + (self.bullet.size_x // 2)
+        self.bullet.y = self.y + self.bullet.size_y
+        self.bullet.vel_y = 12
