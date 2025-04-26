@@ -1,5 +1,4 @@
 from Classes.player_class import Player
-from Classes.alien_class import Alien
 from Classes.alien_block_class import AlienBlock
 import pygame
 
@@ -70,7 +69,6 @@ while running:
                             aliens.num_aliens -= 1
                             if len(player.bullets) > 0:
                                 player.bullets.pop(bullet_index)
-
 
         bullet.blit(WIN)
 
