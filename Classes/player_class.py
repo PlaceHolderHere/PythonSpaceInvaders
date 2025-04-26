@@ -15,8 +15,12 @@ class Player:
         self.lives = 3
         self.bullets = []
         self.firing_cooldown = 30
+        self.firing_speed = 30
 
     def blit(self, win):
+        self.firing_cooldown += 1
+        if self.firing_cooldown >= self.firing_speed:
+            self.firing_cooldown = self.firing_speed
         win.blit(self.sprite, (self.x, self.y))
 
     def move(self):
@@ -27,5 +31,7 @@ class Player:
             self.x -= 5
 
     def shoot(self):
-        self.bullets.append(
-            Bullet(self.x + (self.size_x // 2), self.y - self.bullet_sprite.get_height(), -10, self.bullet_sprite))
+        if self.firing_cooldown >= self.firing_speed:
+            self.firing_cooldown = 0
+            self.bullets.append(
+                Bullet(self.x + (self.size_x // 2), self.y - self.bullet_sprite.get_height(), -10, self.bullet_sprite))
