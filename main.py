@@ -3,11 +3,12 @@ from Classes.alien_block_class import AlienBlock
 import pygame
 
 # CONSTANTS
-SCREEN_HEIGHT = 764
+SCREEN_HEIGHT = 800
 SCREEN_WIDTH = 764
 
 # Variables
 running = True
+score = 0
 
 # Pygame Init
 pygame.init()
@@ -16,8 +17,8 @@ pygame.display.set_caption("Space Invaders by PlaceHolderHere")
 WIN = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
 # Player
-player = Player(30, 680, pygame.image.load('Sprites/Player.png'), pygame.image.load('Sprites/bullet.png'))
-aliens = AlienBlock(30, ([30 + i * 70 for i in range(5)]),
+player = Player(30, SCREEN_HEIGHT - 70, pygame.image.load('Sprites/Player.png'), pygame.image.load('Sprites/bullet.png'))
+aliens = AlienBlock(30, ([100 + i * 70 for i in range(5)]),
                     (pygame.image.load('Sprites/enemy4.png'), pygame.image.load('Sprites/enemy3.png'),
                      pygame.image.load('Sprites/enemy2.png'), pygame.image.load('Sprites/enemy1.png'),
                      pygame.image.load('Sprites/enemy1.png')), pygame.image.load('Sprites/enemy_bullet.png'),
@@ -43,6 +44,7 @@ while running:
             elif event.key == pygame.K_a:
                 player.move_left = False
 
+    # Background and Border Fill
     WIN.fill((0, 0, 0))
 
     # Player Processing
@@ -56,17 +58,16 @@ while running:
     # Player Bullet
     for bullet_index, bullet in enumerate(player.bullets):
         bullet.move()
-        if bullet.y < -bullet.size_y:
+        if bullet.y < -bullet.size_y:  # checks if bullet flew off screen
             player.bullets.pop(bullet_index)
         else:
-            for row in aliens.alien_rows:
-                # Potential Optimization
-                'if row.aliens[0].y + row.aliens[0].size_y < bullet.y and bullet.y + bullet.size_y > row.aliens[0].y:'
+            for row in aliens.alien_rows:  # Collisions with Aliens
                 for alien in row.aliens:
                     if alien.alive:
                         if bullet.is_colliding(pygame.Rect(alien.x, alien.y, alien.size_x, alien.size_y)):
                             alien.alive = False
                             aliens.num_aliens -= 1
+                            score += 10
                             if len(player.bullets) > 0:
                                 player.bullets.pop(bullet_index)
 
