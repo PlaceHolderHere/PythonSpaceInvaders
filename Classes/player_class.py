@@ -8,12 +8,13 @@ class Player:
         self.sprite = sprite
         self.size_x = sprite.get_width()
         self.size_y = sprite.get_height()
+        self.bullet_sprite = bullet_sprite
         self.move_left = False
         self.move_right = False
         self.alive = True
         self.lives = 3
         self.bullets = []
-        self.bullet_sprite = bullet_sprite
+        self.firing_cooldown = 30
 
     def blit(self, win):
         win.blit(self.sprite, (self.x, self.y))
@@ -27,4 +28,4 @@ class Player:
 
     def shoot(self):
         self.bullets.append(
-            Bullet(self.x + (self.size_x // 2), self.y + self.bullet_sprite.get_height(), self.bullet_sprite, 10))
+            Bullet(self.x + (self.size_x // 2), self.y - self.bullet_sprite.get_height(), -10, self.bullet_sprite))
