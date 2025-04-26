@@ -1,4 +1,4 @@
-from pygame.rect import Rect
+from pygame import Rect
 
 
 class Bullet:
