@@ -1,6 +1,5 @@
 from pygame import Rect
 
-
 class Bullet:
     def __init__(self, x, y, vel_y, sprite):
         self.x = x
@@ -23,21 +22,19 @@ class Bullet:
 
     def blast_calculation(self, rect_x, rect_y, rect_width, rect_height):
         circle_x = self.x + (self.size_x // 2)
-        circle_y = None
+        circle_y = 0
         if self.vel_y > 0:
             circle_y = self.y
 
         elif self.vel_y < 0:
             circle_y = self.y + (self.size_y // 2)
 
-        if circle_y is not None:
-            # Finds the closest corner to the circle's center
-            closest_x = max(rect_x, min(circle_x, rect_x + rect_width))
-            closest_y = max(rect_y, min(circle_y, rect_y + rect_height))
+        # Finds the closest corner to the circle's center
+        closest_x = max(rect_x, min(circle_x, rect_x + rect_width))
+        closest_y = max(rect_y, min(circle_y, rect_y + rect_height))
 
-            x_difference = closest_x - circle_x
-            y_difference = closest_y - circle_y
-            # checks if difference from circle center to rectangle less than or equal to the radius
-            return (x_difference ** 2 + y_difference ** 2) <= (self.blast_radius ** 2)  # Pythagorean's theorem
-        else:
-            return False
+        x_difference = closest_x - circle_x
+        y_difference = closest_y - circle_y
+
+        # checks if difference from circle center to rectangle less than or equal to the radius
+        return (x_difference ** 2 + y_difference ** 2) <= (self.blast_radius ** 2)  # Pythagorean's theorem
