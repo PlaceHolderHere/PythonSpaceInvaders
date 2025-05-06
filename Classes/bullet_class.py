@@ -1,5 +1,6 @@
 from pygame import Rect
 
+
 class Bullet:
     def __init__(self, x, y, vel_y, sprite):
         self.x = x
@@ -23,10 +24,10 @@ class Bullet:
     def blast_calculation(self, rect_x, rect_y, rect_width, rect_height):
         circle_x = self.x + (self.size_x // 2)
         circle_y = 0
-        if self.vel_y > 0:
+        if self.vel_y < 0:
             circle_y = self.y
 
-        elif self.vel_y < 0:
+        elif self.vel_y > 0:
             circle_y = self.y + (self.size_y // 2)
 
         # Finds the closest corner to the circle's center
