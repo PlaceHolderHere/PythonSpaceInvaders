@@ -34,4 +34,5 @@ class Player:
         if self.firing_cooldown >= self.firing_speed:
             self.firing_cooldown = 0
             self.bullets.append(
-                Bullet(self.x + (self.size_x // 2), self.y, -10, self.bullet_sprite))
+                Bullet(self.x + (self.size_x // 2) - (self.bullet_sprite.get_width() // 2), self.y, -10,
+                       self.bullet_sprite))
