@@ -31,8 +31,8 @@ alien_sprites = (alien_sprite4, alien_sprite3, alien_sprite2, alien_sprite1, ali
 player = Player(30, SCREEN_HEIGHT - 70, player_sprite, player_bullet_sprite)
 aliens = AlienBlock(30, ([100 + i * 70 for i in range(5)]), alien_sprites, alien_bullet, 90,
                     70, 7)
-fortresses = [Fortress(60, 550, 3), Fortress(298, 550, 3),
-              Fortress(536, 550, 3)]
+fortresses = [Fortress(75, 550, 3), Fortress(298, 550, 3),
+              Fortress(521, 550, 3)]
 
 while running:
     pygame.time.Clock().tick(60)
