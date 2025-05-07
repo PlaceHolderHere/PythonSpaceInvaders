@@ -17,15 +17,22 @@ pygame.mixer.init()
 pygame.display.set_caption("Space Invaders by PlaceHolderHere")
 WIN = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
+# Sprites
+player_sprite = pygame.image.load('Sprites/Player.png')
+player_bullet_sprite = pygame.image.load('Sprites/bullet.png')
+alien_sprite1 = pygame.image.load('Sprites/enemy1.png')
+alien_sprite2 = pygame.image.load('Sprites/enemy2.png')
+alien_sprite3 = pygame.image.load('Sprites/enemy3.png')
+alien_sprite4 = pygame.image.load('Sprites/enemy4.png')
+alien_bullet = pygame.image.load('Sprites/enemy_bullet.png')
+alien_sprites = (alien_sprite4, alien_sprite3, alien_sprite2, alien_sprite1, alien_sprite1)
+
 # Player
-player = Player(30, SCREEN_HEIGHT - 70, pygame.image.load('Sprites/Player.png'),
-                pygame.image.load('Sprites/bullet.png'))
-aliens = AlienBlock(30, ([100 + i * 70 for i in range(5)]),
-                    (pygame.image.load('Sprites/enemy4.png'), pygame.image.load('Sprites/enemy3.png'),
-                     pygame.image.load('Sprites/enemy2.png'), pygame.image.load('Sprites/enemy1.png'),
-                     pygame.image.load('Sprites/enemy1.png')), pygame.image.load('Sprites/enemy_bullet.png'),
-                    90, 70, 7)
-fortresses = [Fortress(100, 500, 3)]
+player = Player(30, SCREEN_HEIGHT - 70, player_sprite, player_bullet_sprite)
+aliens = AlienBlock(30, ([100 + i * 70 for i in range(5)]), alien_sprites, alien_bullet, 90,
+                    70, 7)
+fortresses = [Fortress(60, 550, 3), Fortress(298, 550, 3),
+              Fortress(536, 550, 3)]
 
 while running:
     pygame.time.Clock().tick(60)
@@ -47,7 +54,7 @@ while running:
             elif event.key == pygame.K_a:
                 player.move_left = False
 
-    # Background and Border Fill
+    # Background
     WIN.fill((0, 0, 0))
 
     # Player Processing
@@ -139,7 +146,7 @@ while running:
                                                 2 * bullet.blast_radius)) - fortress.start_y) // fortress.rect_size)
                                                                + 1)
 
-                                    for blast_row_index in range(blast_lower_y_range, blast_upper_y_range):
+                                    for blast_row_index in range(blast_lower_y_range, blast_upper_y_range - 1):
                                         for blast_col_index in range(blast_lower_x_range, blast_upper_x_range):
                                             if fortress.fortress[blast_row_index][blast_col_index] == 1:
                                                 x = fortress.start_x + (blast_col_index * fortress.rect_size)
