@@ -3,11 +3,13 @@ from Classes.alien_row_class import AlienRow
 
 # length of alien_sprites and y_values must be equal
 class AlienBlock:
-    def __init__(self, start_x, y_values, alien_sprites, bullet_sprite, movement_trigger, spacing, row_length):
+    def __init__(self, start_x, y_values, alien_sprites, bullet_sprite, movement_trigger, spacing, row_length,
+                 firing_chance):
         self.start_x = start_x
         self.y_values = y_values
         self.movement_trigger = movement_trigger
         self.spacing = spacing
+        self.firing_chance = firing_chance
         self.row_length = row_length
         self.num_aliens = row_length * len(y_values)
         self.alien_rows = [AlienRow(start_x, y_values[i], alien_sprites[i], bullet_sprite, movement_trigger, spacing,

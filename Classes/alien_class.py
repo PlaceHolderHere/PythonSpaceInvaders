@@ -12,6 +12,7 @@ class Alien:
         self.movement_timer = movement_delay
         self.movement_trigger = movement_trigger
         self.alive = True
+        self.bullet_fired = False
         self.bullet = Bullet(x, -200, 0, bullet_sprite)
 
     def blit(self, win):
@@ -30,6 +31,7 @@ class Alien:
         self.y += 12
 
     def shoot(self):
+        self.bullet_fired = True
         self.bullet.x = self.x + (self.bullet.size_x // 2)
         self.bullet.y = self.y + self.bullet.size_y
-        self.bullet.vel_y = 12
+        self.bullet.vel_y = 4

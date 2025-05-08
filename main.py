@@ -1,7 +1,7 @@
 from Classes.player_class import Player
 from Classes.alien_block_class import AlienBlock
 from Classes.fortress_class import Fortress
-import pygame
+import pygame, random
 
 # CONSTANTS
 SCREEN_HEIGHT = 800
@@ -30,7 +30,7 @@ alien_sprites = (alien_sprite4, alien_sprite3, alien_sprite2, alien_sprite1, ali
 # Player
 player = Player(30, SCREEN_HEIGHT - 70, player_sprite, player_bullet_sprite)
 aliens = AlienBlock(30, ([100 + i * 70 for i in range(5)]), alien_sprites, alien_bullet, 90,
-                    70, 7)
+                    70, 7, 300)
 fortresses = [Fortress(75, 550, 3), Fortress(298, 550, 3),
               Fortress(521, 550, 3)]
 
@@ -165,20 +165,34 @@ while running:
 
     # Alien Processing
     # Alien Wall Collisions
+    aliens.firing_chance = 300
     for row in aliens.alien_rows:
         for alien in row.aliens:
-            if alien.x + alien.size_x > SCREEN_WIDTH:
-                row.move_down()
-                x_change = alien.x + alien.size_x - SCREEN_WIDTH
-                for alien2 in row.aliens:
-                    alien2.x -= x_change
-                break
-            elif alien.x < 30:
-                row.move_down()
-                x_change = 30 - alien.x
-                for alien2 in row.aliens:
-                    alien2.x += x_change
-                break
+            if alien.alive:
+                # Border Collisions
+                if alien.x + alien.size_x > SCREEN_WIDTH:
+                    row.move_down()
+                    x_change = alien.x + alien.size_x - SCREEN_WIDTH
+                    for alien2 in row.aliens:
+                        alien2.x -= x_change
+                    break
+                elif alien.x < 30:
+                    row.move_down()
+                    x_change = 30 - alien.x
+                    for alien2 in row.aliens:
+                        alien2.x += x_change
+                    break
+
+                # Alien bullet processing
+                if alien.bullet_fired:
+                    alien.bullet.move()
+                    alien.bullet.blit(WIN)
+
+                # Alien Firing
+                elif not alien.bullet_fired:
+                    if random.randint(0, aliens.firing_chance) == 0:
+                        alien.shoot()
+                        aliens.firing_chance += 20
 
     aliens.blit(WIN)
 
