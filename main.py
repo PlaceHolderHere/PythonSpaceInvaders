@@ -1,7 +1,8 @@
 from Classes.player_class import Player
 from Classes.alien_block_class import AlienBlock
 from Classes.fortress_class import Fortress
-import pygame, random
+import pygame
+import random
 
 # CONSTANTS
 SCREEN_HEIGHT = 800
@@ -151,7 +152,8 @@ while running:
                                             if fortress.fortress[blast_row_index][blast_col_index] == 1:
                                                 x = fortress.start_x + (blast_col_index * fortress.rect_size)
                                                 y = fortress.start_y + (blast_row_index * fortress.rect_size)
-                                                if bullet.blast_calculation(x, y, fortress.rect_size, fortress.rect_size):
+                                                if bullet.blast_calculation(x, y, fortress.rect_size,
+                                                                            fortress.rect_size):
                                                     fortress.fortress[blast_row_index][blast_col_index] = 0
 
                                     hit = True
