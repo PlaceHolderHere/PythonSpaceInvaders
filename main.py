@@ -31,7 +31,7 @@ alien_sprites = (alien_sprite4, alien_sprite3, alien_sprite2, alien_sprite1, ali
 # Player
 player = Player(30, SCREEN_HEIGHT - 70, player_sprite, player_bullet_sprite)
 aliens = AlienBlock(30, ([100 + i * 70 for i in range(5)]), alien_sprites, alien_bullet, 90,
-                    70, 7, 300)
+                    70, 7, 1000)
 fortresses = [Fortress(75, 550, 3), Fortress(298, 550, 3),
               Fortress(521, 550, 3)]
 
@@ -78,7 +78,7 @@ while running:
                     if alien.alive:
                         if bullet.is_colliding(pygame.Rect(alien.x, alien.y, alien.size_x, alien.size_y)):
                             alien.alive = False
-                            aliens.num_aliens -= 1
+                            aliens.num_alive_aliens -= 1
                             score += 10
                             if len(player.bullets) > 0:
                                 player.bullets.pop(bullet_index)
@@ -166,8 +166,6 @@ while running:
     player.blit(WIN)
 
     # Alien Processing
-    # Alien Wall Collisions
-    aliens.firing_chance = 300
     for row in aliens.alien_rows:
         for alien in row.aliens:
             if alien.alive:
@@ -187,22 +185,24 @@ while running:
 
                 # Alien bullet processing
                 if alien.bullet_fired:
+
                     alien.bullet.move()
                     alien.bullet.blit(WIN)
 
                 # Alien Firing
                 elif not alien.bullet_fired:
-                    if random.randint(0, aliens.firing_chance) == 0:
+                    if random.randint(0, aliens.global_firing_chance - (
+                            (aliens.TOTAL_NUM_ALIENS - aliens.num_alive_aliens) * 5)) == 0:
                         alien.shoot()
-                        aliens.firing_chance += 20
-
+    # Alien Rendering
     aliens.blit(WIN)
+
+    # Alien Reset
+    if aliens.num_alive_aliens <= 0:
+        aliens.reset()
 
     # Fortresses Blit
     for fortress in fortresses:
         fortress.blit(WIN)
-
-    if aliens.num_aliens <= 0:
-        aliens.reset()
 
     pygame.display.update()
