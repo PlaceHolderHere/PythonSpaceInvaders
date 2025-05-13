@@ -21,18 +21,10 @@ class Bullet:
         self_rect = Rect(self.x, self.y, self.size_x, self.size_y)
         return self_rect.colliderect(collide_rect)
 
-    def blast_calculation(self, rect_x, rect_y, rect_width, rect_height):
-        circle_x = self.x + (self.size_x // 2)
-        circle_y = 0
-        if self.vel_y < 0:
-            circle_y = self.y
-
-        elif self.vel_y > 0:
-            circle_y = self.y + (self.size_y // 2)
-
+    def blast_calculation(self, circle_x, circle_y, rect_x, rect_y, rect_size):
         # Finds the closest corner to the circle's center
-        closest_x = max(rect_x, min(circle_x, rect_x + rect_width))
-        closest_y = max(rect_y, min(circle_y, rect_y + rect_height))
+        closest_x = max(rect_x, min(circle_x, rect_x + rect_size))
+        closest_y = max(rect_y, min(circle_y, rect_y + rect_size))
 
         x_difference = closest_x - circle_x
         y_difference = closest_y - circle_y
