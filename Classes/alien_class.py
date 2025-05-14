@@ -1,4 +1,5 @@
 from Classes.bullet_class import Bullet
+from pygame import Rect
 
 
 class Alien:
@@ -35,3 +36,6 @@ class Alien:
         self.bullet.x = self.x + (self.bullet.size_x // 2)
         self.bullet.y = self.y + self.bullet.size_y
         self.bullet.vel_y = 4
+
+    def get_rect(self):
+        return Rect(self.x, self.y, self.size_x, self.size_y)

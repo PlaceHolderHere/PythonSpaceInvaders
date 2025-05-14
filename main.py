@@ -76,7 +76,7 @@ while running:
             for row in aliens.alien_rows:
                 for alien in row.aliens:
                     if alien.alive:
-                        if bullet.is_colliding(pygame.Rect(alien.x, alien.y, alien.size_x, alien.size_y)):
+                        if bullet.is_colliding(alien.get_rect()):
                             alien.alive = False
                             aliens.num_alive_aliens -= 1
                             score += 10
@@ -86,32 +86,30 @@ while running:
 
             # Collisions with Fortress
             for fortress in fortresses:
-                if bullet.is_colliding(
-                        pygame.Rect(fortress.start_x, fortress.start_y, len(fortress.fortress[0]) * fortress.rect_size,
-                                    len(fortress.fortress) * fortress.rect_size)):
-
+                if bullet.is_colliding(fortress.get_fortress_rect()):
                     # Calculating Bullet Range for collisions with the fortress
                     lower_bullet_x_range = max(0, (bullet.x - fortress.start_x) // fortress.rect_size)
-                    upper_bullet_x_range = min(len(fortress.fortress[0]), (
+                    upper_bullet_x_range = min(fortress.num_cols, (
                                 (bullet.x + bullet.size_x - fortress.start_x) // fortress.rect_size) + 1)
 
                     # Blast Collisions
                     collision_detected = False
-                    for row_index in range(len(fortress.fortress) - 1, 0, -1):
+                    for row_index in range(fortress.num_rows - 1, 0, -1):
                         if collision_detected:
                             break
                         else:
                             for col_index in range(lower_bullet_x_range, upper_bullet_x_range):
                                 if fortress.fortress[row_index][col_index] == 1:
-                                    block_x = fortress.start_x + (col_index * fortress.rect_size)
-                                    block_y = fortress.start_y + (row_index * fortress.rect_size)
+                                    colliding_block_x = fortress.start_x + (col_index * fortress.rect_size)
+                                    colliding_block_y = fortress.start_y + (row_index * fortress.rect_size)
                                     if bullet.is_colliding(
-                                            pygame.Rect(block_x, block_y, fortress.rect_size, fortress.rect_size)):
+                                            pygame.Rect(colliding_block_x, colliding_block_y, fortress.rect_size,
+                                                        fortress.rect_size)):
 
                                         # Calculations for blast radius
                                         # Top Left Coordinates for Blast Radius hit box
-                                        blast_x = block_x - bullet.blast_radius
-                                        blast_y = block_y - bullet.blast_radius
+                                        blast_x = colliding_block_x - bullet.blast_radius
+                                        blast_y = colliding_block_y - bullet.blast_radius
 
                                         # Blast Ranges
                                         blast_lower_x_range = max(0,
@@ -130,8 +128,8 @@ while running:
                                                 if fortress.fortress[blast_row_index][blast_col_index] == 1:
                                                     x = fortress.start_x + (blast_col_index * fortress.rect_size)
                                                     y = fortress.start_y + (blast_row_index * fortress.rect_size)
-                                                    if bullet.blast_calculation(block_x, block_y, x, y,
-                                                                                fortress.rect_size):
+                                                    if bullet.blast_calculation(colliding_block_x, colliding_block_y, x,
+                                                                                y, fortress.rect_size):
                                                         fortress.fortress[blast_row_index][blast_col_index] = 0
 
                                         # Disabling all collision checks related to this bullet
@@ -162,6 +160,7 @@ while running:
 
                 # Alien bullet processing
                 if alien.bullet_fired:
+                    # Collision Processing
 
                     alien.bullet.move()
                     alien.bullet.blit(WIN)

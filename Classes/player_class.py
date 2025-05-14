@@ -1,4 +1,5 @@
 from Classes.bullet_class import Bullet
+from pygame import Rect
 
 
 class Player:
@@ -36,3 +37,6 @@ class Player:
             self.bullets.append(
                 Bullet(self.x + (self.size_x // 2) - (self.bullet_sprite.get_width() // 2), self.y, -10,
                        self.bullet_sprite))
+
+    def get_rect(self):
+        return Rect(self.x, self.y, self.size_x, self.size_y)
