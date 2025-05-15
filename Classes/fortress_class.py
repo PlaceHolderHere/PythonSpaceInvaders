@@ -1,4 +1,5 @@
 import pygame
+import copy
 
 
 class Fortress:
@@ -6,7 +7,7 @@ class Fortress:
         self.start_x = start_x
         self.start_y = start_y
         self.rect_size = rect_size
-        self.fortress = [
+        self.fortress_shape = [
             [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -79,6 +80,7 @@ class Fortress:
              0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
              0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]]
+        self.fortress = copy.deepcopy(self.fortress_shape)
         self.size_x = len(self.fortress[0]) * self.rect_size
         self.size_y = len(self.fortress) * self.rect_size
         self.num_rows = len(self.fortress)
@@ -94,3 +96,6 @@ class Fortress:
 
     def get_fortress_rect(self):
         return pygame.Rect(self.start_x, self.start_y, self.size_x, self.size_y)
+
+    def reset(self):
+        self.fortress = copy.deepcopy(self.fortress_shape)

@@ -4,13 +4,25 @@ from Classes.fortress_class import Fortress
 import pygame
 import random
 
+
+def draw_text(win, text_x, text_y, msg, color):
+    pygame.font.init()
+    font = pygame.font.SysFont('Arial', 35)
+    text = font.render(f'{msg}', False, color)
+    text_rect = text.get_rect(center=(text_x, text_y))
+
+    win.blit(text, text_rect)
+
+
 # CONSTANTS
 SCREEN_HEIGHT = 800
 SCREEN_WIDTH = 764
+WHITE = (255, 255, 255)
 
 # Variables
 running = True
 score = 0
+level = 1
 
 # Pygame Init
 pygame.init()
@@ -20,6 +32,7 @@ WIN = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
 # Sprites
 player_sprite = pygame.image.load('Sprites/Player.png')
+player_life_icon = pygame.transform.scale(player_sprite, (48, 48))
 player_bullet_sprite = pygame.image.load('Sprites/bullet.png')
 alien_sprite1 = pygame.image.load('Sprites/enemy1.png')
 alien_sprite2 = pygame.image.load('Sprites/enemy2.png')
@@ -62,6 +75,11 @@ while running:
 
     # Background
     WIN.fill((0, 0, 0))
+
+    # HUD
+    draw_text(WIN, SCREEN_WIDTH // 2, 40, str(score), WHITE)
+    for life_index in range(player.lives):
+        WIN.blit(player_life_icon, ((life_index * 56) + 56, 16))
 
     # Player Respawn Animation
     if player.respawn_cooldown > 0:
@@ -275,7 +293,11 @@ while running:
 
         # Alien Reset
         if aliens.num_alive_aliens <= 0:
+            level += 1
             aliens.reset()
+            # Fortress Reset
+            for fortress in fortresses:
+                fortress.reset()
 
         # Fortresses Blit
         for fortress in fortresses:
