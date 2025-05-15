@@ -23,7 +23,7 @@ class Player:
         self.respawning = False
 
     def blit(self, win):
-        if self.respawning:
+        if not self.respawning:
             self.firing_cooldown += 1
             if self.firing_cooldown >= self.firing_speed:
                 self.firing_cooldown = self.firing_speed
