@@ -36,3 +36,7 @@ class AlienRow:
             alien.y = self.start_y
             alien.movement_trigger = self.movement_trigger
             alien.movement_timer = self.movement_delay
+
+    def clear_bullets(self):
+        for alien in self.aliens:
+            alien.bullet_fired = False

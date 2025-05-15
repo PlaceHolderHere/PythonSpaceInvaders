@@ -26,6 +26,11 @@ class AlienBlock:
 
     def reset(self):
         for row_index, alien_row in enumerate(self.alien_rows):
-            self.num_aliens = self.row_length * len(self.y_values)
+            alien_row.clear_bullets()
+            self.num_alive_aliens = self.row_length * len(self.y_values)
             alien_row.movement_trigger = self.movement_trigger
             alien_row.reset()
+
+    def clear_bullets(self):
+        for alien_row in self.alien_rows:
+            alien_row.clear_bullets()
