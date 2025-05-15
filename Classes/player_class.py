@@ -17,11 +17,16 @@ class Player:
         self.bullets = []
         self.firing_cooldown = 30
         self.firing_speed = 30
+        self.respawn_cooldown = 0
+        self.respawn_animation_counter = 0
+        self.respawn_blit = False
+        self.respawning = False
 
     def blit(self, win):
-        self.firing_cooldown += 1
-        if self.firing_cooldown >= self.firing_speed:
-            self.firing_cooldown = self.firing_speed
+        if self.respawning:
+            self.firing_cooldown += 1
+            if self.firing_cooldown >= self.firing_speed:
+                self.firing_cooldown = self.firing_speed
         win.blit(self.sprite, (self.x, self.y))
 
     def move(self):
@@ -40,3 +45,12 @@ class Player:
 
     def get_rect(self):
         return Rect(self.x, self.y, self.size_x, self.size_y)
+
+    def reset(self, x, y):
+        self.x = x
+        self.y = y
+        self.move_left = False
+        self.move_right = False
+        self.bullets.clear()
+        self.firing_cooldown = 30
+        self.firing_speed = 30
