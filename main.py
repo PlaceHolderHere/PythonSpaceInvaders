@@ -23,6 +23,7 @@ WHITE = (255, 255, 255)
 running = True
 score = 0
 level = 1
+stars = [(random.randint(0, SCREEN_WIDTH), random.randint(80, SCREEN_HEIGHT)) for i in range(200)]
 
 # Pygame Init
 pygame.init()
@@ -44,7 +45,7 @@ alien_sprites = (alien_sprite4, alien_sprite3, alien_sprite2, alien_sprite1, ali
 # Player
 player = Player(30, SCREEN_HEIGHT - 70, player_sprite, player_bullet_sprite)
 aliens = AlienBlock(30, ([100 + i * 70 for i in range(5)]), alien_sprites, alien_bullet, 90,
-                    70, 7, 1000)
+                    70, 9, 1500)
 fortresses = [Fortress(75, 550, 3), Fortress(298, 550, 3),
               Fortress(521, 550, 3)]
 
@@ -75,6 +76,10 @@ while running:
 
     # Background
     WIN.fill((0, 0, 0))
+
+    # Stars
+    for star in stars:
+        pygame.draw.rect(WIN, WHITE, (star[0], star[1], 4, 4))
 
     # HUD
     draw_text(WIN, SCREEN_WIDTH // 2, 40, str(score), WHITE)
