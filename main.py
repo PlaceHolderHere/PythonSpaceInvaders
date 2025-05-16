@@ -23,7 +23,6 @@ WHITE = (255, 255, 255)
 running = True
 score = 0
 level = 1
-stars = [(random.randint(0, SCREEN_WIDTH), random.randint(80, SCREEN_HEIGHT)) for i in range(200)]
 
 # Pygame Init
 pygame.init()
@@ -76,10 +75,6 @@ while running:
 
     # Background
     WIN.fill((0, 0, 0))
-
-    # Stars
-    for star in stars:
-        pygame.draw.rect(WIN, WHITE, (star[0], star[1], 4, 4))
 
     # HUD
     draw_text(WIN, SCREEN_WIDTH // 2, 40, str(score), WHITE)
