@@ -30,6 +30,11 @@ pygame.mixer.init()
 pygame.display.set_caption("Space Invaders by PlaceHolderHere")
 WIN = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
+# SFX
+player_fire_SFX = pygame.mixer.Sound("SFX/player_fire.wav")
+player_death_SFX = pygame.mixer.Sound("SFX/player_death.wav")
+alien_death_SFX = pygame.mixer.Sound("SFX/alien_death.wav")
+
 # Sprites
 player_sprite = pygame.image.load('Sprites/Player.png')
 player_life_icon = pygame.transform.scale(player_sprite, (48, 48))
@@ -64,6 +69,7 @@ while running:
             elif event.key == pygame.K_SPACE:
                 if player.alive:
                     player.shoot()
+                    player_fire_SFX.play()
 
         elif event.type == pygame.KEYUP:
             if event.key == pygame.K_s:
@@ -120,6 +126,7 @@ while running:
                                     alien.alive = False
                                     aliens.num_alive_aliens -= 1
                                     score += 10
+                                    alien_death_SFX.play()
                                     if len(player.bullets) > 0:
                                         player.bullets.pop(bullet_index)
                                         break
@@ -214,6 +221,7 @@ while running:
                             if alien.bullet.is_colliding(player.get_rect()):
                                 player.alive = False
                                 alien.bullet_fired = False
+                                player_death_SFX.play()
 
                             # Fortress Collisions
                             for fortress in fortresses:
