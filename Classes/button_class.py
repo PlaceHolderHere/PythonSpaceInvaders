@@ -2,10 +2,10 @@ import pygame
 
 
 class Button:
-    def __init__(self, x, y, image, transparency):
+    def __init__(self, x, y, image):
         self.x = x
         self.y = y
-        self.transparency = transparency
+        self.transparency = 200
         self.clicked = False
         self.button_cooldown = 0
         self.image = image
@@ -21,8 +21,14 @@ class Button:
                 self.button_cooldown = 15
                 return True
 
+            else:
+                return False
+
     def mouse_is_hovering(self):
         mouse_position = pygame.mouse.get_pos()
         if self.rect.collidepoint(mouse_position):
             self.transparency = 255
             return True
+        else:
+            self.transparency = 200
+            return False
