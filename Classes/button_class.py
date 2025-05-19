@@ -5,7 +5,6 @@ class Button:
     def __init__(self, center_x, center_y, image):
         self.transparency = 200
         self.clicked = False
-        self.button_cooldown = 0
         self.image = image
         self.x = center_x - (image.get_width() // 2)
         self.y = center_y - (image.get_height() // 2)
@@ -17,8 +16,7 @@ class Button:
 
     def is_clicked(self):
         if self.mouse_is_hovering():
-            if pygame.mouse.get_pressed()[0] == 1 and self.button_cooldown <= 0:
-                self.button_cooldown = 15
+            if pygame.mouse.get_pressed()[0] == 1:
                 return True
 
             else:
