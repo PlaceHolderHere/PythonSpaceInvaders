@@ -9,7 +9,7 @@ class Alien:
         self.sprite = sprite
         self.size_x = sprite.get_width()
         self.size_y = sprite.get_height()
-        self.direction = 1
+        self.x_vel = 12
         self.movement_timer = movement_delay
         self.movement_trigger = movement_trigger
         self.alive = True
@@ -25,10 +25,10 @@ class Alien:
         win.blit(self.sprite, (self.x, self.y))
 
     def move(self):
-        self.x += self.direction * 12
+        self.x += self.x_vel
 
     def move_down(self):
-        self.direction *= -1
+        self.x_vel *= -1
         self.y += 12
 
     def shoot(self):
