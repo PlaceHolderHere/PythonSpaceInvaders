@@ -19,6 +19,7 @@ def draw_text(win, text_x, text_y, msg, color):
 SCREEN_HEIGHT = 800
 SCREEN_WIDTH = 764
 WHITE = (255, 255, 255)
+RED = (255, 0, 0)
 
 # Variables
 running = True
@@ -49,9 +50,14 @@ alien_bullet = pygame.image.load('Sprites/enemy_bullet.png')
 alien_sprites = (alien_sprite4, alien_sprite3, alien_sprite2, alien_sprite1, alien_sprite1)
 
 # Buttons
-play_button = Button(254, 254, pygame.image.load("Buttons/Play.png"))
-controls_button = Button(254, 352, pygame.image.load("Buttons/Controls.png"))
-main_menu_button = Button(254, 124, pygame.image.load("Buttons/Main Menu.png"))
+play_button = Button(SCREEN_WIDTH // 2, 302, pygame.image.load("Buttons/Play.png"))
+controls_button = Button(SCREEN_WIDTH // 2, 400, pygame.image.load("Buttons/Controls.png"))
+main_menu_button = Button(SCREEN_WIDTH // 2, 124, pygame.image.load("Buttons/Main Menu.png"))
+resume_button = Button(SCREEN_WIDTH // 2, 222, pygame.image.load("Buttons/Resume.png"))
+restart_button = Button(SCREEN_WIDTH // 2, 320, pygame.image.load("Buttons/Restart.png"))
+quit_button = Button(SCREEN_WIDTH // 2, 400, pygame.image.load("Buttons/Quit.png"))
+main_menu_defeat_button = Button(SCREEN_WIDTH // 2, 352, pygame.image.load("Buttons/Main Menu.png"))
+retry_Button = Button(SCREEN_WIDTH // 2, 448, pygame.image.load("Buttons/Retry.png"))
 
 # Game Objects
 player = Player(30, SCREEN_HEIGHT - 70, player_sprite, player_bullet_sprite)
@@ -75,6 +81,8 @@ while running:
                 elif event.key == pygame.K_SPACE:
                     player.shoot()
                     player_fire_SFX.play()
+                elif event.key == pygame.K_ESCAPE:
+                    current_menu = 'PAUSED'
 
         elif event.type == pygame.KEYUP:
             if current_menu == 'GAME':
@@ -89,28 +97,92 @@ while running:
     WIN.fill((0, 0, 0))
 
     if current_menu == 'HOME':
-        draw_text(WIN, 352, 160, "Space Invaders by PlaceHolderHere", WHITE)
+        draw_text(WIN, SCREEN_WIDTH // 2, 160, "Space Invaders by PlaceHolderHere", WHITE)
 
         # Buttons
-        controls_button.draw(WIN)
-        play_button.draw(WIN)
-
-        if controls_button.is_clicked():
-            current_menu = 'CONTROLS'
+        play_button.blit(WIN)
+        controls_button.blit(WIN)
 
         if play_button.is_clicked():
             current_menu = 'GAME'
 
-    elif current_menu == 'CONTROLS':
-        draw_text(WIN, 352, 224, "Controls:", WHITE)
-        draw_text(WIN, 352, 288, "A: Left", WHITE)
-        draw_text(WIN, 352, 352, "S: Right", WHITE)
-        draw_text(WIN, 352, 416, "Space: Shoot", WHITE)
-        draw_text(WIN, 352, 480, "Escape: Main Menu", WHITE)
+        elif controls_button.is_clicked():
+            current_menu = 'CONTROLS'
 
-        main_menu_button.draw(WIN)
+    elif current_menu == 'CONTROLS':
+        # Controls
+        draw_text(WIN, SCREEN_WIDTH // 2, 224, "Controls:", WHITE)
+        draw_text(WIN, SCREEN_WIDTH // 2, 288, "A: Left", WHITE)
+        draw_text(WIN, SCREEN_WIDTH // 2, 352, "S: Right", WHITE)
+        draw_text(WIN, SCREEN_WIDTH // 2, 416, "Space: Shoot", WHITE)
+        draw_text(WIN, SCREEN_WIDTH // 2, 480, "Escape: Pause", WHITE)
+
+        main_menu_button.blit(WIN)
         if main_menu_button.is_clicked():
             current_menu = 'HOME'
+
+    elif current_menu == 'PAUSED':
+        main_menu_button.blit(WIN)
+        resume_button.blit(WIN)
+        restart_button.blit(WIN)
+        quit_button.blit(WIN)
+
+        if main_menu_button.is_clicked():
+            # Resets Game Variables
+            score = 0
+            level = 1
+            player.lives = 3
+            player.reset(30, SCREEN_HEIGHT - 70)
+            aliens.reset()
+            for fortress in fortresses:
+                fortress.reset_fortress()
+            current_menu = 'HOME'
+
+        elif resume_button.is_clicked():
+            current_menu = 'GAME'
+
+        elif restart_button.is_clicked():
+            # Resets Game Variables
+            score = 0
+            level = 1
+            player.lives = 3
+            player.reset(30, SCREEN_HEIGHT - 70)
+            aliens.reset()
+            for fortress in fortresses:
+                fortress.reset_fortress()
+            current_menu = 'GAME'
+
+        elif quit_button.is_clicked():
+            running = False
+            break
+
+    elif current_menu == 'DEAD':
+        draw_text(WIN, SCREEN_WIDTH // 2, 220, "GAME OVER", RED)
+        draw_text(WIN, SCREEN_WIDTH // 2, 280, f"Final Score: {score}", WHITE)
+
+        # Buttons
+        main_menu_defeat_button.blit(WIN)
+        retry_Button.blit(WIN)
+        if main_menu_defeat_button.is_clicked():
+            # Resets Game Variables
+            score = 0
+            level = 1
+            player.lives = 3
+            player.reset(30, SCREEN_HEIGHT - 70)
+            aliens.reset()
+            for fortress in fortresses:
+                fortress.reset_fortress()
+            current_menu = 'HOME'
+        elif retry_Button.is_clicked():
+            # Resets Game Variables
+            score = 0
+            level = 1
+            player.lives = 3
+            player.reset(30, SCREEN_HEIGHT - 70)
+            aliens.reset()
+            for fortress in fortresses:
+                fortress.reset_fortress()
+            current_menu = 'GAME'
 
     elif current_menu == 'GAME':
         # HUD
@@ -221,12 +293,14 @@ while running:
                                                         player.bullets.pop(bullet_index)
                                                     break
             else:
-                if player.lives >= 0:
+                if player.lives > 0:
                     aliens.clear_bullets()
                     player.alive = True
                     player.respawning = True
                     player.respawn_cooldown = 120
                     player.lives -= 1
+                else:
+                    current_menu = 'DEAD'
 
             # Alien Processing
             for row in aliens.alien_rows:
