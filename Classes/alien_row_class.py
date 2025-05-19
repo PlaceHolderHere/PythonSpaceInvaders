@@ -34,6 +34,7 @@ class AlienRow:
             alien.alive = True
             alien.x = self.start_x + (alien_index * self.spacing)
             alien.y = self.start_y
+            alien.x_vel = abs(alien.x_vel)
             alien.movement_trigger = self.movement_trigger
             alien.movement_timer = self.movement_delay
 
