@@ -2,16 +2,16 @@ import pygame
 
 
 class Button:
-    def __init__(self, x, y, image):
-        self.x = x
-        self.y = y
+    def __init__(self, center_x, center_y, image):
         self.transparency = 200
         self.clicked = False
         self.button_cooldown = 0
         self.image = image
-        self.rect = pygame.rect.Rect(x, y, image.get_width(), image.get_height())
+        self.x = center_x - (image.get_width() // 2)
+        self.y = center_y - (image.get_height() // 2)
+        self.rect = pygame.rect.Rect(self.x, self.y, image.get_width(), image.get_height())
 
-    def draw(self, win):
+    def blit(self, win):
         self.image.set_alpha(self.transparency)
         win.blit(self.image, self.rect)
 
