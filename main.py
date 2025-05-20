@@ -20,6 +20,8 @@ SCREEN_HEIGHT = 800
 SCREEN_WIDTH = 764
 WHITE = (255, 255, 255)
 RED = (255, 0, 0)
+MIN_ALIEN_FIRING_CHANCE = 10
+MIN_ALIEN_MOVEMENT_TRIGGER = 30
 
 # Variables
 running = True
@@ -402,22 +404,26 @@ while running:
 
                         # Alien Firing
                         elif not alien.bullet_fired:
-                            if random.randint(0, aliens.global_firing_chance - (
-                                    (aliens.TOTAL_NUM_ALIENS - aliens.num_alive_aliens) * 5)) == 0:
+                            num_dead_aliens = aliens.TOTAL_NUM_ALIENS - aliens.num_alive_aliens
+                            firing_chance = max(MIN_ALIEN_FIRING_CHANCE,
+                                                aliens.global_firing_chance - (num_dead_aliens * 5))
+                            if random.randint(0, firing_chance) == 0:
                                 alien.shoot()
             # Alien Rendering
             aliens.blit(WIN)
 
-            # Alien Reset
-            if aliens.num_alive_aliens <= 0:
-                level += 1
-                aliens.reset()
-                # Fortress Reset
-                for fortress in fortresses:
-                    fortress.reset_fortress()
-
             # Fortresses Blit
             for fortress in fortresses:
                 fortress.blit(WIN)
+
+            # Level Reset
+            if aliens.num_alive_aliens <= 0:
+                level += 1
+                aliens.reset()
+                aliens.global_firing_chance = max(MIN_ALIEN_FIRING_CHANCE, aliens.global_firing_chance - (level * 10))
+                aliens.movement_trigger = max(MIN_ALIEN_MOVEMENT_TRIGGER, aliens.movement_trigger - ((level // 5) * 5))
+                # Fortress Reset
+                for fortress in fortresses:
+                    fortress.reset_fortress()
 
     pygame.display.update()
