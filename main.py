@@ -232,66 +232,64 @@ while running:
                                         aliens.num_alive_aliens -= 1
                                         score += 10
                                         alien_death_SFX.play()
-                                        if len(player.bullets) > 0:
+                                        if player.bullets:
                                             player.bullets.pop(bullet_index)
                                             break
 
                         # Fortress Collisions
-                        for fortress in fortresses:
-                            if bullet.is_colliding(fortress.get_fortress_rect()):
+                        for fort in fortresses:
+                            fort_shape = fort.fortress
+                            if bullet.is_colliding(fort.get_fortress_rect()):
                                 # Calculating Bullet Range for collisions with the fortress
-                                lower_bullet_x_range = max(0, (bullet.x - fortress.start_x) // fortress.rect_size)
-                                upper_bullet_x_range = min(fortress.num_cols, (
-                                            (bullet.x + bullet.size_x - fortress.start_x) // fortress.rect_size) + 1)
+                                lower_bullet_x_range = max(0, (bullet.x - fort.start_x) // fort.rect_size)
+                                upper_bullet_x_range = min(fort.num_cols, (
+                                            (bullet.x + bullet.size_x - fort.start_x) // fort.rect_size) + 1)
 
                                 # Blast Collisions
                                 collision_detected = False
-                                for row_index in range(fortress.num_rows - 1, 0, -1):
+                                for row_index in range(fort.num_rows - 1, 0, -1):
                                     if collision_detected:
                                         break
                                     else:
                                         for col_index in range(lower_bullet_x_range, upper_bullet_x_range):
-                                            if fortress.fortress[row_index][col_index] == '1':
-                                                collide_block_x = fortress.start_x + (col_index * fortress.rect_size)
-                                                collide_block_y = fortress.start_y + (row_index * fortress.rect_size)
-                                                if bullet.is_colliding(
-                                                        pygame.Rect(collide_block_x, collide_block_y, fortress.rect_size,
-                                                                    fortress.rect_size)):
-
+                                            if fort_shape[row_index][col_index] == '1':
+                                                collide_block_x = fort.start_x + (col_index * fort.rect_size)
+                                                collide_block_y = fort.start_y + (row_index * fort.rect_size)
+                                                collide_block_rect = pygame.Rect(collide_block_x, collide_block_y,
+                                                                                 fort.rect_size, fort.rect_size)
+                                                if bullet.is_colliding(collide_block_rect):
                                                     # Calculations for blast radius
-                                                    # Top Left Coordinates for Blast Radius hit box
-                                                    blast_x = collide_block_x - bullet.blast_radius
-                                                    blast_y = collide_block_y - bullet.blast_radius
+                                                    blast_x = collide_block_x - bullet.blast_radius  # Left
+                                                    blast_y = collide_block_y - bullet.blast_radius  # Top
+                                                    blast_size_x = blast_x - fort.start_x
+                                                    blast_size_y = blast_y - fort.start_y
 
                                                     # Blast Ranges
-                                                    blast_lower_x_range = max(0, (
-                                                                (blast_x - fortress.start_x) // fortress.rect_size))
-                                                    blast_upper_x_range = min(len(fortress.fortress[0]), (blast_x + (
-                                                                2 * bullet.blast_radius) - fortress.start_x) //
-                                                                              fortress.rect_size + 1)
-                                                    blast_lower_y_range = max(0, (
-                                                                blast_y - fortress.start_y) // fortress.rect_size)
-                                                    blast_upper_y_range = min(len(fortress.fortress), ((((blast_y + (
-                                                                2 * bullet.blast_radius)) - fortress.start_y) //
-                                                                            fortress.rect_size) + 1))
+                                                    blast_lower_x_range = max(0, blast_size_x // fort.rect_size)
+                                                    blast_upper_x_range = min(fort.num_cols, (
+                                                        blast_size_x + (2 * bullet.blast_radius)) // fort.rect_size + 1)
+
+                                                    blast_lower_y_range = max(0, blast_size_y // fort.rect_size)
+                                                    blast_upper_y_range = min(fort.num_rows, (blast_size_y + (
+                                                                2 * bullet.blast_radius)) // fort.rect_size + 1)
+
+                                                    blast_x_range = range(blast_lower_x_range, blast_upper_x_range)
+                                                    blast_y_range = range(blast_lower_y_range, blast_upper_y_range)
 
                                                     # Blast Radius Collisions
-                                                    for blast_row_index in range(blast_lower_y_range, blast_upper_y_range):
-                                                        for blast_col_index in range(blast_lower_x_range,
-                                                                                     blast_upper_x_range):
-                                                            if fortress.fortress[blast_row_index][blast_col_index] == '1':
-                                                                x = fortress.start_x + (
-                                                                            blast_col_index * fortress.rect_size)
-                                                                y = fortress.start_y + (
-                                                                            blast_row_index * fortress.rect_size)
+                                                    for blast_row_index in blast_y_range:
+                                                        for blast_col_index in blast_x_range:
+                                                            if fort_shape[blast_row_index][blast_col_index] == '1':
+                                                                x = fort.start_x + (blast_col_index * fort.rect_size)
+                                                                y = fort.start_y + (blast_row_index * fort.rect_size)
                                                                 if bullet.blast_calculation(collide_block_x,
                                                                                             collide_block_y, x, y,
-                                                                                            fortress.rect_size):
-                                                                    fortress.fortress[blast_row_index][blast_col_index] = 0
+                                                                                            fort.rect_size):
+                                                                    fort_shape[blast_row_index][blast_col_index] = '0'
 
                                                     # Disabling all collision checks related to this bullet
                                                     collision_detected = True
-                                                    if len(player.bullets) > 0:
+                                                    if player.bullets:
                                                         player.bullets.pop(bullet_index)
                                                     break
             else:
@@ -334,64 +332,64 @@ while running:
                                     player_death_SFX.play()
 
                                 # Fortress Collisions
-                                for fortress in fortresses:
-                                    if alien.bullet.is_colliding(fortress.get_fortress_rect()):
+                                for fort in fortresses:
+                                    fort_shape = fort.fortress
+                                    if alien.bullet.is_colliding(fort.get_fortress_rect()):
                                         # Calculating Bullet Range for collisions with the fortress
-                                        lower_bullet_x_range = max(0, (
-                                                    alien.bullet.x - fortress.start_x) // fortress.rect_size)
-                                        upper_bullet_x_range = min(fortress.num_cols,
-                                                            ((alien.bullet.x + alien.bullet.size_x - fortress.start_x) //
-                                                                    fortress.rect_size) + 1)
+                                        collision_size_x = alien.bullet.x - fort.start_x
+                                        lower_bullet_x_range = max(0, collision_size_x // fort.rect_size)
+                                        upper_bullet_x_range = min(fort.num_cols, (
+                                                    collision_size_x + alien.bullet.size_x) // fort.rect_size + 1)
 
                                         # Blast Collisions
                                         collision_detected = False
-                                        for row_index in range(fortress.num_rows - 1, 0, -1):
+                                        for row_index in range(fort.num_rows - 1, 0, -1):
                                             if collision_detected:
                                                 break
                                             else:
                                                 for col_index in range(lower_bullet_x_range, upper_bullet_x_range):
-                                                    if fortress.fortress[row_index][col_index] == '1':
-                                                        colliding_block_x = fortress.start_x + (
-                                                                    col_index * fortress.rect_size)
-                                                        colliding_block_y = fortress.start_y + (
-                                                                    row_index * fortress.rect_size)
-                                                        if alien.bullet.is_colliding(
-                                                                pygame.Rect(colliding_block_x, colliding_block_y,
-                                                                            fortress.rect_size,
-                                                                            fortress.rect_size)):
-
+                                                    if fort.fortress[row_index][col_index] == '1':
+                                                        collide_block_x = fort.start_x + (col_index * fort.rect_size)
+                                                        collide_block_y = fort.start_y + (row_index * fort.rect_size)
+                                                        collide_rect = pygame.Rect(collide_block_x, collide_block_y,
+                                                                                   fort.rect_size, fort.rect_size)
+                                                        if alien.bullet.is_colliding(collide_rect):
                                                             # Calculations for blast radius
                                                             # Top Left Coordinates for Blast Radius hit box
-                                                            blast_x = colliding_block_x - alien.bullet.blast_radius
-                                                            blast_y = colliding_block_y - alien.bullet.blast_radius
+                                                            blast_x = collide_block_x - alien.bullet.blast_radius
+                                                            blast_y = collide_block_y - alien.bullet.blast_radius
+                                                            blast_size_x = blast_x - fort.start_x
+                                                            blast_size_y = blast_y - fort.start_y
 
                                                             # Blast Ranges
-                                                            blast_lower_x_range = max(0, (
-                                                                        (blast_x - fortress.start_x) // fortress.rect_size))
-                                                            blast_upper_x_range = min(len(fortress.fortress[0]), (blast_x + (
-                                                                    2 * alien.bullet.blast_radius) - fortress.start_x) //
-                                                                                      fortress.rect_size + 1)
-                                                            blast_lower_y_range = max(0, (
-                                                                        blast_y - fortress.start_y) // fortress.rect_size)
-                                                            blast_upper_y_range = min(len(fortress.fortress), (((blast_y + (
-                                                                        2 * alien.bullet.blast_radius)) - fortress.start_y) //
-                                                                                        fortress.rect_size) + 1)
+                                                            blast_lower_x_range = max(0, blast_size_x // fort.rect_size)
+                                                            blast_upper_x_range = min(fort.num_cols, (blast_size_x + (
+                                                                        2 * alien.bullet.blast_radius)) //
+                                                                                      fort.rect_size + 1)
+
+                                                            blast_lower_y_range = max(0, blast_size_y // fort.rect_size)
+                                                            blast_upper_y_range = min(fort.num_rows, (blast_size_y + (
+                                                                        2 * alien.bullet.blast_radius)) //
+                                                                                      fort.rect_size + 1)
+
+                                                            blast_x_range = range(blast_lower_x_range,
+                                                                                  blast_upper_x_range)
+                                                            blast_y_range = range(blast_lower_y_range,
+                                                                                  blast_upper_y_range)
 
                                                             # Blast Radius Collisions
-                                                            for blast_row_index in range(blast_lower_y_range,
-                                                                                         blast_upper_y_range):
-                                                                for blast_col_index in range(blast_lower_x_range,
-                                                                                             blast_upper_x_range):
-                                                                    if fortress.fortress[blast_row_index][blast_col_index] == '1':
-                                                                        x = fortress.start_x + (
-                                                                                    blast_col_index * fortress.rect_size)
-                                                                        y = fortress.start_y + (
-                                                                                    blast_row_index * fortress.rect_size)
-                                                                        if alien.bullet.blast_calculation(colliding_block_x,
-                                                                                                          colliding_block_y, x,
-                                                                                                          y,
-                                                                                                          fortress.rect_size):
-                                                                            fortress.fortress[blast_row_index][
+                                                            for blast_row_index in blast_y_range:
+                                                                for blast_col_index in blast_x_range:
+                                                                    if fort_shape[blast_row_index][
+                                                                            blast_col_index] == '1':
+                                                                        x = fort.start_x + (
+                                                                                    blast_col_index * fort.rect_size)
+                                                                        y = fort.start_y + (
+                                                                                    blast_row_index * fort.rect_size)
+                                                                        if alien.bullet.blast_calculation(
+                                                                                collide_block_x, collide_block_y, x, y,
+                                                                                fort.rect_size):
+                                                                            fort_shape[blast_row_index][
                                                                                 blast_col_index] = 0
 
                                                             # Disabling further collision checks
