@@ -65,7 +65,7 @@ retry_Button = Button(SCREEN_WIDTH // 2, 448, pygame.image.load("Buttons/Retry.p
 
 # Game Objects
 player = Player(30, SCREEN_HEIGHT - 70, player_sprite, player_bullet_sprite)
-aliens = AlienBlock(60, ([100 + i * 70 for i in range(5)]), alien_sprites, alien_bullet, 40,
+aliens = AlienBlock(60, ([100 + i * 70 for i in range(5)]), alien_sprites, alien_bullet, 90,
                     70, 9, 1500)
 fortresses = [Fortress(75, 550, 3), Fortress(298, 550, 3),
               Fortress(521, 550, 3)]
