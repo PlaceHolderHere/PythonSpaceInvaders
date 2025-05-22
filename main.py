@@ -328,7 +328,7 @@ while running:
             for alien_row_index, row in enumerate(aliens.alien_rows):
                 for alien in row.aliens:
                     if alien.alive:
-                        if alien.y < player.y:
+                        if alien.y > player.y:
                             current_menu = 'DEAD'
 
                         if alien_row_index == 0:
