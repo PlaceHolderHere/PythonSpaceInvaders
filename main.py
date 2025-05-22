@@ -30,6 +30,9 @@ score = 0
 level = 1
 current_menu = 'HOME'
 aliens_move_down = False
+new_level_animation_cooldown = 0
+new_level_animation_counter = 0
+new_level_blit_animation = False
 
 # Pygame Init
 pygame.init()
@@ -209,6 +212,19 @@ while running:
             if player.respawn_blit:
                 player.blit(WIN)
 
+        elif new_level_animation_cooldown > 0:
+            new_level_animation_cooldown -= 1
+            new_level_animation_counter += 1
+            if new_level_animation_counter > 10:
+                new_level_animation_counter = 0
+                new_level_blit_animation = not new_level_blit_animation
+
+            if new_level_blit_animation:
+                player.blit(WIN)
+                aliens.blit(WIN)
+                for fort in fortresses:
+                    fort.blit(WIN)
+
         # Player Processing
         else:
             if player.respawning:
@@ -310,12 +326,14 @@ while running:
 
             # Level Reset
             if aliens.num_alive_aliens <= 0:
+                player.bullets = []
+                new_level_animation_cooldown = 120
                 level += 1
-                aliens.reset()
                 aliens.global_firing_chance = max(MIN_ALIEN_FIRING_CHANCE,
                                                   aliens.global_firing_chance - (level * 10))
                 aliens.movement_trigger = max(MIN_ALIEN_MOVEMENT_TRIGGER,
                                               aliens.movement_trigger - ((level // 5) * 5))
+                aliens.reset()
                 # Fortress Reset
                 for fortress in fortresses:
                     fortress.reset_fortress()
