@@ -328,6 +328,9 @@ while running:
             for alien_row_index, row in enumerate(aliens.alien_rows):
                 for alien in row.aliens:
                     if alien.alive:
+                        if alien.y < player.y:
+                            current_menu = 'DEAD'
+
                         if alien_row_index == 0:
                             # Border Collisions
                             if alien.x + alien.size_x > SCREEN_WIDTH - 30:
