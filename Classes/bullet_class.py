@@ -9,7 +9,7 @@ class Bullet:
         self.sprite = sprite
         self.size_x = sprite.get_width()
         self.size_y = sprite.get_height()
-        self.blast_radius = 12
+        self.blast_radius = 8
 
     def blit(self, win):
         win.blit(self.sprite, (self.x, self.y))
