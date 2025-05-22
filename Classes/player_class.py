@@ -42,6 +42,7 @@ class Player:
             self.bullets.append(
                 Bullet(self.x + (self.size_x // 2) - (self.bullet_sprite.get_width() // 2), self.y, -10,
                        self.bullet_sprite))
+            return True
 
     def get_rect(self):
         return Rect(self.x, self.y, self.size_x, self.size_y)

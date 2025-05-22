@@ -83,8 +83,8 @@ while running:
                 elif event.key == pygame.K_a:
                     player.move_left = True
                 elif event.key == pygame.K_SPACE:
-                    player.shoot()
-                    player_fire_SFX.play()
+                    if player.shoot():
+                        player_fire_SFX.play()
                 elif event.key == pygame.K_ESCAPE:
                     current_menu = 'PAUSED'
 
