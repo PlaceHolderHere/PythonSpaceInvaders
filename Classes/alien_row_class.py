@@ -23,6 +23,7 @@ class AlienRow:
         for alien in self.aliens:
             if alien.alive:
                 alien.move_down()
+                alien.move()
 
     def update_movement_trigger(self, updated_value):
         for alien in self.aliens:

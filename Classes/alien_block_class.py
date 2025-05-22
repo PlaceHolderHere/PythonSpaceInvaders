@@ -14,7 +14,7 @@ class AlienBlock:
         self.TOTAL_NUM_ALIENS = row_length * len(y_values)
         self.num_alive_aliens = self.TOTAL_NUM_ALIENS
         self.alien_rows = [AlienRow(start_x, y_values[i], alien_sprites[i], bullet_sprite, movement_trigger, spacing,
-                                    row_length, i * 10) for i in range(len(y_values))]
+                                    row_length, i * 8) for i in range(len(y_values))]
 
     def blit(self, win):
         for row in self.alien_rows:
