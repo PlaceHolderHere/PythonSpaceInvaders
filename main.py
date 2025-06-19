@@ -9,10 +9,18 @@ import random
 def draw_text(win, text_x, text_y, msg, color):
     pygame.font.init()
     font = pygame.font.SysFont('Arial', 35)
-    text = font.render(f'{msg}', False, color)
+    text = font.render(f'{str(msg)}', False, color)
     text_rect = text.get_rect(center=(text_x, text_y))
 
     win.blit(text, text_rect)
+
+
+def get_lower_bound(lower_x, upper_x, block_size):
+    return max(0, (upper_x - lower_x) // block_size)
+
+
+def get_upper_bound(lower_x, upper_x, block_size, max_output):
+    return min(max_output, (upper_x - lower_x) // block_size + 1)
 
 
 # CONSTANTS
@@ -197,7 +205,7 @@ while running:
 
     elif current_menu == 'GAME':
         # HUD
-        draw_text(WIN, SCREEN_WIDTH // 2, 40, str(score), WHITE)
+        draw_text(WIN, SCREEN_WIDTH // 2, 40, score, WHITE)
         for life_index in range(player.lives):
             WIN.blit(player_life_icon, ((life_index * 56) + 56, 16))
 
@@ -212,7 +220,11 @@ while running:
             if player.respawn_blit:
                 player.blit(WIN)
 
-        elif new_level_animation_cooldown > 0:
+        elif player.respawning:
+            player.respawning = False
+            player.reset(30, SCREEN_HEIGHT - 70)
+
+        if new_level_animation_cooldown > 0:
             new_level_animation_cooldown -= 1
             new_level_animation_counter += 1
             if new_level_animation_counter > 10:
@@ -227,10 +239,7 @@ while running:
 
         # Player Processing
         else:
-            if player.respawning:
-                player.respawning = False
-                player.reset(30, SCREEN_HEIGHT - 70)
-            elif player.alive:
+            if player.alive:
                 player.move()
                 # Player Border Collisions
                 if player.x < 30:
@@ -260,12 +269,12 @@ while running:
 
                         # Fortress Collisions
                         for fort in fortresses:
-                            fort_shape = fort.fortress
+                            fort_shape = fort.shape
                             if bullet.is_colliding(fort.get_fortress_rect()):
-                                # Calculating Bullet Range for collisions with the fortress
-                                lower_bullet_x_range = max(0, (bullet.x - fort.start_x) // fort.rect_size)
-                                upper_bullet_x_range = min(fort.num_cols, (
-                                            (bullet.x + bullet.size_x - fort.start_x) // fort.rect_size) + 1)
+                                # Calculating Bullet Range for collisions with the shape
+                                lower_bullet_x_range = get_lower_bound(fort.x, bullet.x, fort.rect_size)
+                                upper_bullet_x_range = get_upper_bound(fort.x, bullet.x + bullet.size_x, fort.rect_size,
+                                                                       fort.num_cols)
 
                                 # Blast Collisions
                                 collision_detected = False
@@ -275,16 +284,16 @@ while running:
                                     else:
                                         for col_index in range(lower_bullet_x_range, upper_bullet_x_range):
                                             if fort_shape[row_index][col_index] == '1':
-                                                collide_block_x = fort.start_x + (col_index * fort.rect_size)
-                                                collide_block_y = fort.start_y + (row_index * fort.rect_size)
+                                                collide_block_x = fort.x + (col_index * fort.rect_size)
+                                                collide_block_y = fort.y + (row_index * fort.rect_size)
                                                 collide_block_rect = pygame.Rect(collide_block_x, collide_block_y,
                                                                                  fort.rect_size, fort.rect_size)
                                                 if bullet.is_colliding(collide_block_rect):
                                                     # Calculations for blast radius
                                                     blast_x = collide_block_x - bullet.blast_radius  # Left
                                                     blast_y = collide_block_y - bullet.blast_radius  # Top
-                                                    blast_size_x = blast_x - fort.start_x
-                                                    blast_size_y = blast_y - fort.start_y
+                                                    blast_size_x = blast_x - fort.x
+                                                    blast_size_y = blast_y - fort.y
 
                                                     # Blast Ranges
                                                     blast_lower_x_range = max(0, blast_size_x // fort.rect_size)
@@ -302,8 +311,8 @@ while running:
                                                     for blast_row_index in blast_y_range:
                                                         for blast_col_index in blast_x_range:
                                                             if fort_shape[blast_row_index][blast_col_index] == '1':
-                                                                x = fort.start_x + (blast_col_index * fort.rect_size)
-                                                                y = fort.start_y + (blast_row_index * fort.rect_size)
+                                                                x = fort.x + (blast_col_index * fort.rect_size)
+                                                                y = fort.y + (blast_row_index * fort.rect_size)
                                                                 if bullet.blast_calculation(collide_block_x,
                                                                                             collide_block_y, x, y,
                                                                                             fort.rect_size):
@@ -377,10 +386,10 @@ while running:
 
                             # Fortress Collisions
                             for fort in fortresses:
-                                fort_shape = fort.fortress
+                                fort_shape = fort.shape
                                 if alien.bullet.is_colliding(fort.get_fortress_rect()):
-                                    # Calculating Bullet Range for collisions with the fortress
-                                    collision_size_x = alien.bullet.x - fort.start_x
+                                    # Calculating Bullet Range for collisions with the shape
+                                    collision_size_x = alien.bullet.x - fort.x
                                     lower_bullet_x_range = max(0, collision_size_x // fort.rect_size)
                                     upper_bullet_x_range = min(fort.num_cols, (
                                                 collision_size_x + alien.bullet.size_x) // fort.rect_size + 1)
@@ -392,9 +401,9 @@ while running:
                                             break
                                         else:
                                             for col_index in range(lower_bullet_x_range, upper_bullet_x_range):
-                                                if fort.fortress[row_index][col_index] == '1':
-                                                    collide_block_x = fort.start_x + (col_index * fort.rect_size)
-                                                    collide_block_y = fort.start_y + (row_index * fort.rect_size)
+                                                if fort.shape[row_index][col_index] == '1':
+                                                    collide_block_x = fort.x + (col_index * fort.rect_size)
+                                                    collide_block_y = fort.y + (row_index * fort.rect_size)
                                                     collide_rect = pygame.Rect(collide_block_x, collide_block_y,
                                                                                fort.rect_size, fort.rect_size)
                                                     if alien.bullet.is_colliding(collide_rect):
@@ -402,8 +411,8 @@ while running:
                                                         # Top Left Coordinates for Blast Radius hit box
                                                         blast_x = collide_block_x - alien.bullet.blast_radius
                                                         blast_y = collide_block_y - alien.bullet.blast_radius
-                                                        blast_size_x = blast_x - fort.start_x
-                                                        blast_size_y = blast_y - fort.start_y
+                                                        blast_size_x = blast_x - fort.x
+                                                        blast_size_y = blast_y - fort.y
 
                                                         # Blast Ranges
                                                         blast_lower_x_range = max(0, blast_size_x // fort.rect_size)
@@ -426,9 +435,9 @@ while running:
                                                             for blast_col_index in blast_x_range:
                                                                 if fort_shape[blast_row_index][
                                                                         blast_col_index] == '1':
-                                                                    x = fort.start_x + (
+                                                                    x = fort.x + (
                                                                                 blast_col_index * fort.rect_size)
-                                                                    y = fort.start_y + (
+                                                                    y = fort.y + (
                                                                                 blast_row_index * fort.rect_size)
                                                                     if alien.bullet.blast_calculation(
                                                                             collide_block_x, collide_block_y, x, y,
