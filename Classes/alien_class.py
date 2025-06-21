@@ -14,7 +14,7 @@ class Alien:
         self.movement_trigger = movement_trigger
         self.alive = True
         self.bullet_fired = False
-        self.bullet = Bullet(x, -200, 0, bullet_sprite)
+        self.bullet = Bullet(x, -200, 0, bullet_sprite, False)
 
     def blit(self, win):
         self.movement_timer += 1

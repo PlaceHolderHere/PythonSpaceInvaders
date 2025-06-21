@@ -39,9 +39,8 @@ class Player:
     def shoot(self):
         if self.firing_cooldown >= self.firing_speed:
             self.firing_cooldown = 0
-            self.bullets.append(
-                Bullet(self.x + (self.size_x // 2) - (self.bullet_sprite.get_width() // 2), self.y, -10,
-                       self.bullet_sprite))
+            bullet_x = self.x + (self.size_x // 2) - (self.bullet_sprite.get_width() // 2)
+            self.bullets.append(Bullet(bullet_x, self.y, -10, self.bullet_sprite, True))
             return True
 
     def get_rect(self):

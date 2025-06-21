@@ -2,7 +2,7 @@ from pygame import Rect
 
 
 class Bullet:
-    def __init__(self, x, y, vel_y, sprite):
+    def __init__(self, x, y, vel_y, sprite, fired):
         self.x = x
         self.y = y
         self.vel_y = vel_y
@@ -10,6 +10,7 @@ class Bullet:
         self.size_x = sprite.get_width()
         self.size_y = sprite.get_height()
         self.blast_radius = 8
+        self.fired = fired
 
     def blit(self, win):
         win.blit(self.sprite, (self.x, self.y))
@@ -31,3 +32,6 @@ class Bullet:
 
         # checks if difference from circle center to rectangle less than or equal to the radius
         return (x_difference ** 2 + y_difference ** 2) <= (self.blast_radius ** 2)  # Pythagorean's theorem
+
+    def is_off_screen(self):
+        return self.y + self.size_y < 0
