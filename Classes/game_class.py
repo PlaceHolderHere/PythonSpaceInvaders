@@ -131,6 +131,198 @@ class Game:
         if self.main_menu_button.is_clicked():
             self.current_menu = 'HOME'
 
+    def player_respawn_animation(self):
+        self.player.respawn_cooldown -= 1
+        self.player.respawn_animation_counter += 1
+        if self.player.respawn_animation_counter > 5:
+            self.player.respawn_animation_counter = 0
+            self.player.respawn_blit = not self.player.respawn_blit
+
+        if self.player.respawn_blit:
+            self.player.blit(self.WIN)
+
+    def new_level_animation(self):
+        self.new_level_animation_cooldown -= 1
+        self.new_level_animation_counter += 1
+        if self.new_level_animation_counter > 10:
+            self.new_level_animation_counter = 0
+            self.new_level_blit_animation = not self.new_level_blit_animation
+
+        if self.new_level_blit_animation:
+            self.player.blit(self.WIN)
+            self.aliens.blit(self.WIN)
+            for fort in self.fortresses:
+                fort.blit(self.WIN)
+
+    def border_collision(self, x, size_x):
+        if x < 30:
+            return {'collided': True, 'x': 30}
+        elif x + size_x > self.SCREEN_WIDTH - 30:
+            return {'collided': True, 'x': self.SCREEN_WIDTH - size_x - 30}
+        return {'collided': False, 'x': x}
+
+    def fortress_blast_collisions(self, bullet):
+        for fort in self.fortresses:
+            if not bullet.is_colliding(fort.get_fortress_rect()):
+                return {'collided': False}
+
+            fort_shape = fort.shape
+            lower_bullet_x_range = get_lower_bound(fort.x, bullet.x, fort.rect_size)
+            upper_bullet_x_range = get_upper_bound(fort.x, bullet.x + bullet.size_x, fort.rect_size, fort.num_cols)
+            for row_index in range(fort.num_rows - 1, 0, -1):
+                for col_index in range(lower_bullet_x_range, upper_bullet_x_range):
+                    if fort_shape[row_index][col_index] == '1':
+                        collide_x = fort.x + (col_index * fort.rect_size)
+                        collide_y = fort.y + (row_index * fort.rect_size)
+                        collide_block_rect = pygame.Rect(collide_x, collide_y, fort.rect_size, fort.rect_size)
+                        if bullet.is_colliding(collide_block_rect):
+                            blast_x = collide_x - bullet.blast_radius
+                            blast_y = collide_y - bullet.blast_radius
+                            blast_size_x = blast_x - fort.x
+                            blast_size_y = blast_y - fort.y
+
+                            # Blast Ranges
+                            blast_lower_x_range = max(0, blast_size_x // fort.rect_size)
+                            blast_upper_x_range = min(fort.num_cols,
+                                                      (blast_size_x + (2 * bullet.blast_radius)) // fort.rect_size + 1)
+
+                            blast_lower_y_range = max(0, blast_size_y // fort.rect_size)
+                            blast_upper_y_range = min(fort.num_rows,
+                                                      (blast_size_y + (2 * bullet.blast_radius)) // fort.rect_size + 1)
+
+                            blast_x_range = range(blast_lower_x_range, blast_upper_x_range)
+                            blast_y_range = range(blast_lower_y_range, blast_upper_y_range)
+
+                            # Blast Radius Collisions
+                            for blast_row_index in blast_y_range:
+                                for blast_col_index in blast_x_range:
+                                    if fort_shape[blast_row_index][blast_col_index] == '1':
+                                        x = fort.x + (blast_col_index * fort.rect_size)
+                                        y = fort.y + (blast_row_index * fort.rect_size)
+                                        if bullet.blast_calculation(collide_x, collide_y, x, y, fort.rect_size):
+                                            fort_shape[blast_row_index][blast_col_index] = '0'
+
+                            return {'collided': True}
+        return {'collided': False}
+
+    def process_player_bullet(self, bullet):
+        bullet.move()
+        if bullet.is_off_screen():
+            return {'collided': True}
+
+        # Other Bullet Collisions
+        for row in self.aliens.alien_rows:
+            for alien in row.aliens:
+                if alien.alive:
+                    if bullet.is_colliding(alien.get_rect()):
+                        alien.alive = False
+                        self.aliens.num_alive_aliens -= 1
+                        self.score += 10
+                        self.alien_death_SFX.play()
+                        return {'collided': True}
+
+        output = self.fortress_blast_collisions(bullet)
+        bullet.blit(self.WIN)
+        return output
+
+    def render_game_menu(self):
+        # HUD
+        draw_text(self.WIN, self.SCREEN_WIDTH // 2, 40, self.score, self.WHITE)
+        for life_index in range(self.player.lives):
+            self.WIN.blit(self.player_life_icon, ((life_index * 56) + 56, 16))
+
+        # Player Respawn Animation
+        if self.player.respawn_cooldown > 0:
+            self.player_respawn_animation()
+
+        # New Level Animation
+        elif self.new_level_animation_cooldown > 0:
+            self.new_level_animation()
+
+        # Player Processing
+        else:
+            if self.player.respawning:
+                self.player.respawning = False
+                self.player.reset(30, self.SCREEN_HEIGHT - 70)
+
+            elif not self.player.alive:
+                if self.player.lives < 0:
+                    self.current_menu = 'DEAD'
+                else:
+                    self.aliens.clear_bullets()
+                    self.player.alive = True
+                    self.player.respawning = True
+                    self.player.respawn_cooldown = 120
+                    self.player.lives -= 1
+
+            # Player Processing
+            else:
+                self.player.move()
+                self.player.x = self.border_collision(self.player.x, self.player.size_x)['x']
+                self.player.blit(self.WIN)
+
+                for bullet_index, bullet in enumerate(self.player.bullets):
+                    if self.process_player_bullet(bullet)['collided']:
+                        self.player.bullets.pop(bullet_index)
+
+            # Level Reset
+            if self.aliens.num_alive_aliens <= 0:
+                self.player.bullets.clear()
+                self.new_level_animation_cooldown = 120
+                self.level += 1
+                self.aliens.global_firing_chance = max(self.MIN_ALIEN_FIRING_CHANCE,
+                                                       self.aliens.global_firing_chance - (self.level * 10))
+                self.aliens.movement_trigger = max(self.MIN_ALIEN_MOVEMENT_TRIGGER,
+                                                   self.aliens.movement_trigger - ((self.level // 5) * 5))
+                self.aliens.reset()
+                # Fortress Reset
+                for fortress in self.fortresses:
+                    fortress.reset_fortress()
+
+            # Alien Processing
+            if self.aliens_move_down:
+                self.aliens_move_down = False
+                self.aliens.move_down()
+
+            for alien_row_index, row in enumerate(self.aliens.alien_rows):
+                for alien in row.aliens:
+                    if alien.alive:
+                        if alien.y > self.player.y:
+                            self.current_menu = 'DEAD'
+
+                        elif alien_row_index == 0:  # Topmost row of aliens
+                            if self.border_collision(alien.x, alien.size_x)['collided']:
+                                self.aliens_move_down = True
+
+                        # Alien Firing
+                        elif not alien.bullet_fired:
+                            num_dead_aliens = self.aliens.TOTAL_NUM_ALIENS - self.aliens.num_alive_aliens
+                            firing_chance = max(self.MIN_ALIEN_FIRING_CHANCE,
+                                                self.aliens.global_firing_chance - (num_dead_aliens * 5))
+                            if random.randint(0, firing_chance) == 0:
+                                alien.shoot()
+
+                    # Alien bullet processing
+                    if alien.bullet_fired:
+                        alien.bullet.move()
+                        if alien.bullet.y > self.SCREEN_HEIGHT:
+                            alien.bullet_fired = False
+                        else:
+                            # Player Collisions
+                            if alien.bullet.is_colliding(self.player.get_rect()):
+                                self.player.alive = False
+                                alien.bullet_fired = False
+                                self.player_death_SFX.play()
+
+                            # Fortress Collisions
+                            if self.fortress_blast_collisions(alien.bullet)['collided']:
+                                alien.bullet_fired = False
+
+                        alien.bullet.blit(self.WIN)
+            self.aliens.blit(self.WIN)
+            for fortress in self.fortresses:
+                fortress.blit(self.WIN)
+
     def update(self):
         pygame.time.Clock().tick(self.FPS)
         self.process_key_binds()
@@ -141,5 +333,8 @@ class Game:
 
         elif self.current_menu == 'CONTROLS':
             self.render_controls_menu()
+
+        elif self.current_menu == 'GAME':
+            self.render_game_menu()
 
         pygame.display.update()
