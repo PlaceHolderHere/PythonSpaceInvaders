@@ -355,6 +355,20 @@ class Game:
             self.running = False
             return True
 
+    def render_game_over_menu(self):
+        draw_text(self.WIN, self.SCREEN_WIDTH // 2, 220, "GAME OVER", self.RED)
+        draw_text(self.WIN, self.SCREEN_WIDTH // 2, 280, f"Final Score: {self.score}", self.WHITE)
+
+        # Buttons
+        self.main_menu_defeat_button.blit(self.WIN)
+        self.retry_Button.blit(self.WIN)
+        if self.main_menu_defeat_button.is_clicked():
+            self.game_reset()
+            self.current_menu = 'HOME'
+        elif self.retry_Button.is_clicked():
+            self.game_reset()
+            self.current_menu = 'GAME'
+
     def update(self):
         pygame.time.Clock().tick(self.FPS)
         self.process_key_binds()
@@ -371,5 +385,8 @@ class Game:
 
         elif self.current_menu == 'PAUSED':
             self.render_paused_game_menu()
+
+        elif self.current_menu == 'DEAD':
+            self.render_game_over_menu()
 
         pygame.display.update()
