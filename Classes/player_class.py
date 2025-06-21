@@ -54,3 +54,5 @@ class Player:
         self.bullets.clear()
         self.firing_cooldown = 30
         self.firing_speed = 30
+        self.respawning = False
+        self.alive = True
