@@ -224,12 +224,16 @@ class Game:
         return output
 
     def game_reset(self):
+        self.aliens_move_down = False
+        self.new_level_animation_cooldown = 0
+        self.new_level_animation_counter = 0
+        self.new_level_blit_animation = False
+
         self.score = 0
         self.level = 1
         self.player.lives = 3
         self.player.reset(30, self.SCREEN_HEIGHT - 70)
         self.aliens.reset()
-        self.aliens_move_down = False
         for fortress in self.fortresses:
             fortress.reset_fortress()
 
