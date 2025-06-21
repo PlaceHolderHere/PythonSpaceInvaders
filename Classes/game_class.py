@@ -225,6 +225,16 @@ class Game:
         bullet.blit(self.WIN)
         return output
 
+    def game_reset(self):
+        self.score = 0
+        self.level = 1
+        self.player.lives = 3
+        self.player.reset(30, self.SCREEN_HEIGHT - 70)
+        self.aliens.reset()
+        self.aliens_move_down = False
+        for fortress in self.fortresses:
+            fortress.reset_fortress()
+
     def render_game_menu(self):
         # HUD
         draw_text(self.WIN, self.SCREEN_WIDTH // 2, 40, self.score, self.WHITE)
@@ -323,6 +333,30 @@ class Game:
             for fortress in self.fortresses:
                 fortress.blit(self.WIN)
 
+    def render_paused_game_menu(self):
+        self.main_menu_button.blit(self.WIN)
+        self.resume_button.blit(self.WIN)
+        self.restart_button.blit(self.WIN)
+        self.quit_button.blit(self.WIN)
+
+        if self.main_menu_button.is_clicked():
+            self.game_reset()
+            self.current_menu = 'HOME'
+            return True
+
+        elif self.resume_button.is_clicked():
+            self.current_menu = 'GAME'
+            return True
+
+        elif self.restart_button.is_clicked():
+            self.game_reset()
+            self.current_menu = 'GAME'
+            return True
+
+        elif self.quit_button.is_clicked():
+            self.running = False
+            return True
+
     def update(self):
         pygame.time.Clock().tick(self.FPS)
         self.process_key_binds()
@@ -336,5 +370,8 @@ class Game:
 
         elif self.current_menu == 'GAME':
             self.render_game_menu()
+
+        elif self.current_menu == 'PAUSED':
+            self.render_paused_game_menu()
 
         pygame.display.update()
